@@ -244,32 +244,21 @@ async function doRefresh() {
     const res = await fetch(WORKER, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 800,
-        tools: [{type:'web_search_20250305',name:'web_search'}],
-        system: 'Search for Tennessee Volunteers baseball 2026 season game results. Return ONLY a JSON array of completed game scores in chronological order. Each item: {"date":"Feb 13","opponent":"Nicholls","result":"W 10-0"}. Only include games that have been played. Return the JSON array only, no other text.',
-        messages: [{role:'user',content:'Tennessee Vols baseball 2026 results'}]
-      })
+      body: JSON.stringify({type: 'schedule'})
     });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    const raw = data.content.map(b=>b.type==='text'?b.text:'').join('');
-    const match = raw.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('No score data returned. Try again in 60 seconds.');
-    const results = JSON.parse(match[0]);
+    const html = await res.text();
 
-    // Match results back to schedule by date + opponent
+    // Parse scores from utsports.com schedule page
     const overrides = {};
-    results.forEach(function(r) {
-      SCHEDULE.forEach(function(g, i) {
-        const sameDate = g.date.toLowerCase() === (r.date||'').toLowerCase();
-        const sameOpp = g.opponent.toLowerCase().includes((r.opponent||'').toLowerCase().split(' ')[0]) ||
-                        (r.opponent||'').toLowerCase().includes(g.opponent.toLowerCase().split(' ')[0]);
-        if (sameDate && sameOpp && r.result) {
-          overrides[i+'_'+g.date.replace(' ','').toLowerCase()+'_'+g.opponent.toLowerCase().replace(/\s/g,'')] = r.result;
-        }
-      });
+    SCHEDULE.forEach(function(g, i) {
+      const key = i+'_'+g.date.replace(' ','').toLowerCase()+'_'+g.opponent.toLowerCase().replace(/\s/g,'');
+      // Look for win/loss patterns near the opponent name in the HTML
+      const oppEscaped = g.opponent.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const pattern = new RegExp(oppEscaped+'[\\s\\S]{0,300}?(W|L)\\s*(\\d+)-(\\d+)','i');
+      const match = html.match(pattern);
+      if (match) {
+        overrides[key] = match[1].toUpperCase()+' '+match[2]+'-'+match[3];
+      }
     });
     saveCache(overrides);
     const games = applyOverrides(SCHEDULE, overrides);
