@@ -167,20 +167,37 @@
       document.getElementById('cache-notice').style.display = 'none';
 
       try {
-        const res = await fetch(WORKER_URL, {
+        // Step 1: Search for schedule
+        const searchRes = await fetch(WORKER_URL, {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({
             model: 'claude-haiku-4-5-20251001',
-            max_tokens: 1200,
+            max_tokens: 1500,
             tools: [{type:'web_search_20250305',name:'web_search'}],
-            system: 'You are a sports data assistant. Search the web for Tennessee Volunteers baseball 2025 schedule. After searching, you MUST respond with ONLY a JSON array and absolutely nothing else — no intro text, no markdown fences, no explanation. Start your response with [ and end with ]. Each element: {"date":"Feb 14","day":"Fri","opponent":"Hofstra","location":"home","time":"4:00 PM ET","result":"W 8-2"}. date format is "Mon DD". location is home or away. result is "W 7-3" or "L 4-2" for played games, or null for upcoming. time is actual time or TBD. Include all games. Sort oldest to newest. YOUR ENTIRE RESPONSE MUST BE ONLY THE JSON ARRAY STARTING WITH [',
-            messages: [{role:'user',content:'Search for Tennessee Vols baseball 2025 full schedule and return as JSON array only'}]
+            messages: [{role:'user',content:'Search for the Tennessee Volunteers baseball 2025 season schedule including all game dates, opponents, scores for games already played, and times for upcoming games.'}]
           })
         });
-        const data = await res.json();
-        if (data.error) throw new Error(data.error.message);
-        const text = data.content.map(b=>b.type==='text'?b.text:'').join('');
+        const searchData = await searchRes.json();
+        if (searchData.error) throw new Error(searchData.error.message);
+        const searchText = searchData.content.map(b=>b.type==='text'?b.text:'').join('');
+
+        // Step 2: Format as JSON
+        const fmtRes = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 1500,
+            system: 'You output ONLY a raw JSON array. No prose, no markdown, no backticks, no explanation. Your entire response must begin with [ and end with ]. Each game: {"date":"Feb 14","day":"Fri","opponent":"Hofstra","location":"home","time":"4:00 PM ET","result":"W 8-2"}. location=home or away. result="W 7-3" or "L 4-2" for played games, null for upcoming. Sort oldest first. BEGIN YOUR RESPONSE WITH [',
+            messages: [
+              {role:'user', content:'Here is the Tennessee Vols 2025 baseball schedule data. Convert every game into the JSON array format. Start with [:\n\n' + searchText.substring(0, 3000)}
+            ]
+          })
+        });
+        const fmtData = await fmtRes.json();
+        if (fmtData.error) throw new Error(fmtData.error.message);
+        const text = fmtData.content.map(b=>b.type==='text'?b.text:'').join('').trim();
         const match = text.match(/\[[\s\S]*\]/);
         if (!match) {
           console.log('Raw response:', text.substring(0, 500));
