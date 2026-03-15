@@ -10,181 +10,59 @@
   <title>Vols Baseball</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: #111;
-      color: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      min-height: 100vh;
-    }
-
-    header {
-      background: #FF8200;
-      padding: 48px 20px 16px;
-    }
-    header h1 {
-      font-size: 22px;
-      font-weight: 700;
-      color: #fff;
-    }
-    header p {
-      font-size: 12px;
-      color: rgba(255,255,255,0.8);
-      margin-top: 2px;
-    }
-
-    .bar {
-      background: #1a1a1a;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #222;
-    }
-    .timestamp {
-      font-size: 11px;
-      color: #666;
-    }
-    .refresh-btn {
-      background: #FF8200;
-      color: #000;
-      border: none;
-      border-radius: 6px;
-      padding: 7px 16px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.5px;
-    }
-    .refresh-btn:disabled {
-      background: #333;
-      color: #666;
-      cursor: not-allowed;
-    }
-
+    body { background: #111; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; min-height: 100vh; }
+    header { background: #FF8200; padding: 48px 20px 16px; }
+    header h1 { font-size: 22px; font-weight: 700; color: #fff; }
+    header p { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+    .bar { background: #1a1a1a; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+    .timestamp { font-size: 11px; color: #666; }
+    .refresh-btn { background: #FF8200; color: #000; border: none; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .refresh-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
     .content { padding: 16px 20px 40px; max-width: 540px; margin: 0 auto; }
-
-    .record {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .record-box {
-      flex: 1;
-      background: #1a1a1a;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-    }
+    .record { display: flex; gap: 12px; margin-bottom: 20px; }
+    .record-box { flex: 1; background: #1a1a1a; border-radius: 8px; padding: 10px; text-align: center; }
     .record-box .val { font-size: 24px; font-weight: 700; }
     .record-box .lbl { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
     .wins .val { color: #4ade80; }
     .losses .val { color: #f87171; }
     .rec .val { color: #FF8200; }
-
-    .next-box {
-      background: #1a1a1a;
-      border: 1px solid #FF8200;
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin-bottom: 20px;
-    }
+    .next-box { background: #1a1a1a; border: 1px solid #FF8200; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
     .next-lbl { font-size: 10px; color: #FF8200; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
     .next-opponent { font-size: 18px; font-weight: 700; }
     .next-meta { font-size: 12px; color: #888; margin-top: 3px; }
-
-    .game {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: #1a1a1a;
-      border-radius: 8px;
-      padding: 12px 14px;
-      margin-bottom: 8px;
-      border-left: 3px solid #333;
-    }
+    .game { display: flex; align-items: center; gap: 12px; background: #1a1a1a; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid #333; }
     .game.win { border-left-color: #4ade80; }
     .game.loss { border-left-color: #f87171; }
     .game.upcoming { border-left-color: #FF8200; }
-
-    .date-col {
-      text-align: center;
-      min-width: 42px;
-      flex-shrink: 0;
-    }
+    .date-col { text-align: center; min-width: 44px; flex-shrink: 0; }
     .date-col .mon { font-size: 11px; font-weight: 700; color: #FF8200; text-transform: uppercase; }
     .date-col .day { font-size: 20px; font-weight: 700; color: #fff; line-height: 1; }
     .date-col .dow { font-size: 10px; color: #555; text-transform: uppercase; }
-
     .sep { width: 1px; height: 40px; background: #2a2a2a; flex-shrink: 0; }
-
-    .logo-circle {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: #222;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700; color: #888;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
+    .logo-circle { width: 36px; height: 36px; border-radius: 50%; background: #222; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #888; flex-shrink: 0; overflow: hidden; }
     .logo-circle img { width: 100%; height: 100%; object-fit: contain; padding: 3px; }
-
     .game-info { flex: 1; min-width: 0; }
     .game-info .opp { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .game-info .meta { font-size: 11px; color: #666; margin-top: 2px; }
-
-    .score {
-      font-size: 13px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 5px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
+    .score { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 5px; white-space: nowrap; flex-shrink: 0; }
     .score.win { color: #4ade80; background: rgba(74,222,128,0.1); }
     .score.loss { color: #f87171; background: rgba(248,113,113,0.1); }
     .score.tbd { color: #555; font-size: 11px; font-weight: 400; }
-
-    .spinner {
-      text-align: center;
-      padding: 60px 0;
-      color: #666;
-      font-size: 13px;
-    }
-    .spin {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      border: 2px solid #222;
-      border-top-color: #FF8200;
-      animation: spin 0.7s linear infinite;
-      margin: 0 auto 12px;
-    }
+    .spinner { text-align: center; padding: 40px 0; color: #666; font-size: 13px; }
+    .spin { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #222; border-top-color: #FF8200; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: #555;
-      font-size: 14px;
-      line-height: 1.8;
-    }
-    .empty strong { color: #FF8200; }
-
-    .err { color: #f87171; font-size: 12px; text-align: center; padding: 20px; }
+    .err { color: #f87171; font-size: 12px; text-align: center; padding: 20px; background: #1a1a1a; border-radius: 8px; margin-top: 12px; }
   </style>
 </head>
 <body>
-
 <header>
   <h1>🔶 Tennessee Vols Baseball</h1>
-  <p>2025 Season Schedule</p>
+  <p>2026 Season Schedule</p>
 </header>
-
 <div class="bar">
-  <div class="timestamp" id="ts">No schedule loaded yet</div>
+  <div class="timestamp" id="ts">Tap Refresh to load scores</div>
   <button class="refresh-btn" id="btn" onclick="doRefresh()">Refresh</button>
 </div>
-
 <div class="content">
   <div id="record" style="display:none" class="record">
     <div class="record-box wins"><div class="val" id="w">0</div><div class="lbl">Wins</div></div>
@@ -196,31 +74,85 @@
     <div class="next-opponent" id="next-opp"></div>
     <div class="next-meta" id="next-meta"></div>
   </div>
-  <div id="list">
-    <div class="empty">No schedule loaded yet.<br>Tap <strong>Refresh</strong> to load.</div>
-  </div>
+  <div id="list"></div>
+  <div id="err-box"></div>
 </div>
 
 <script>
 const WORKER = 'https://purple-frog-d0a1.jamesforbes615.workers.dev';
-const CACHE  = 'vols_2025_v1';
+const CACHE  = 'vols_2026_v1';
 let busy = false;
+
+// Full 2026 schedule - hardcoded so it always displays
+// result: null = upcoming, "W X-Y" or "L X-Y" = final
+const SCHEDULE = [
+  {date:'Feb 13',day:'Fri',opponent:'Nicholls State',location:'home',time:'6:00 PM ET'},
+  {date:'Feb 14',day:'Sat',opponent:'Nicholls State',location:'home',time:'2:00 PM ET'},
+  {date:'Feb 15',day:'Sun',opponent:'Nicholls State',location:'home',time:'1:00 PM ET'},
+  {date:'Feb 17',day:'Tue',opponent:'UNC Asheville',location:'home',time:'6:00 PM ET'},
+  {date:'Feb 20',day:'Fri',opponent:'Kent State',location:'home',time:'6:00 PM ET'},
+  {date:'Feb 21',day:'Sat',opponent:'Kent State',location:'home',time:'2:00 PM ET'},
+  {date:'Feb 22',day:'Sun',opponent:'Kent State',location:'home',time:'1:00 PM ET'},
+  {date:'Feb 24',day:'Tue',opponent:'Bellarmine',location:'home',time:'6:00 PM ET'},
+  {date:'Feb 27',day:'Fri',opponent:'UCLA',location:'neutral',time:'TBD'},
+  {date:'Feb 28',day:'Sat',opponent:'Arizona State',location:'neutral',time:'12:00 PM ET'},
+  {date:'Mar 1',day:'Sun',opponent:'Virginia Tech',location:'neutral',time:'TBD'},
+  {date:'Mar 6',day:'Fri',opponent:'Wright State',location:'home',time:'6:30 PM ET'},
+  {date:'Mar 7',day:'Sat',opponent:'Wright State',location:'home',time:'6:00 PM ET'},
+  {date:'Mar 8',day:'Sun',opponent:'Wright State',location:'home',time:'1:00 PM ET'},
+  {date:'Mar 10',day:'Tue',opponent:'Tennessee Tech',location:'home',time:'6:00 PM ET'},
+  {date:'Mar 13',day:'Fri',opponent:'Georgia',location:'away',time:'TBD'},
+  {date:'Mar 14',day:'Sat',opponent:'Georgia',location:'away',time:'TBD'},
+  {date:'Mar 15',day:'Sun',opponent:'Georgia',location:'away',time:'1:00 PM ET'},
+  {date:'Mar 17',day:'Tue',opponent:'Eastern Kentucky',location:'home',time:'6:00 PM ET'},
+  {date:'Mar 20',day:'Fri',opponent:'Missouri',location:'home',time:'TBD'},
+  {date:'Mar 21',day:'Sat',opponent:'Missouri',location:'home',time:'TBD'},
+  {date:'Mar 22',day:'Sun',opponent:'Missouri',location:'home',time:'TBD'},
+  {date:'Mar 27',day:'Fri',opponent:'Vanderbilt',location:'away',time:'TBD'},
+  {date:'Mar 28',day:'Sat',opponent:'Vanderbilt',location:'away',time:'TBD'},
+  {date:'Mar 29',day:'Sun',opponent:'Vanderbilt',location:'away',time:'TBD'},
+  {date:'Apr 3',day:'Fri',opponent:'LSU',location:'home',time:'TBD'},
+  {date:'Apr 4',day:'Sat',opponent:'LSU',location:'home',time:'TBD'},
+  {date:'Apr 5',day:'Sun',opponent:'LSU',location:'home',time:'TBD'},
+  {date:'Apr 10',day:'Fri',opponent:'Mississippi State',location:'away',time:'TBD'},
+  {date:'Apr 11',day:'Sat',opponent:'Mississippi State',location:'away',time:'TBD'},
+  {date:'Apr 12',day:'Sun',opponent:'Mississippi State',location:'away',time:'TBD'},
+  {date:'Apr 17',day:'Fri',opponent:'Ole Miss',location:'home',time:'TBD'},
+  {date:'Apr 18',day:'Sat',opponent:'Ole Miss',location:'home',time:'TBD'},
+  {date:'Apr 19',day:'Sun',opponent:'Ole Miss',location:'home',time:'TBD'},
+  {date:'Apr 24',day:'Fri',opponent:'Alabama',location:'home',time:'TBD'},
+  {date:'Apr 25',day:'Sat',opponent:'Alabama',location:'home',time:'TBD'},
+  {date:'Apr 26',day:'Sun',opponent:'Alabama',location:'home',time:'TBD'},
+  {date:'May 1',day:'Fri',opponent:'Kentucky',location:'away',time:'TBD'},
+  {date:'May 2',day:'Sat',opponent:'Kentucky',location:'away',time:'TBD'},
+  {date:'May 3',day:'Sun',opponent:'Kentucky',location:'away',time:'TBD'},
+  {date:'May 8',day:'Fri',opponent:'Texas',location:'home',time:'TBD'},
+  {date:'May 9',day:'Sat',opponent:'Texas',location:'home',time:'TBD'},
+  {date:'May 10',day:'Sun',opponent:'Texas',location:'home',time:'TBD'},
+  {date:'May 14',day:'Thu',opponent:'Oklahoma',location:'away',time:'TBD'},
+  {date:'May 15',day:'Fri',opponent:'Oklahoma',location:'away',time:'TBD'},
+  {date:'May 16',day:'Sat',opponent:'Oklahoma',location:'away',time:'TBD'},
+];
 
 const LOGOS = {
   'alabama':'333','arkansas':'8','auburn':'2','florida':'57','georgia':'61',
   'kentucky':'96','lsu':'99','mississippi state':'344','miss state':'344',
   'missouri':'142','ole miss':'145','south carolina':'2579',
-  'texas am':'245','texas a&m':'245','vanderbilt':'238',
+  'texas':'251','texas am':'245','vanderbilt':'238',
   'oklahoma':'201','oklahoma state':'197','duke':'150',
   'north carolina':'153','clemson':'228','virginia':'258',
-  'miami':'2390','florida state':'52','georgia tech':'59',
-  'nc state':'152','notre dame':'87','stanford':'24',
-  'ucla':'26','usc':'30','arizona':'12','arizona state':'9',
-  'oregon':'2483','washington':'264','etsu':'2181',
-  'east tennessee':'2181','hofstra':'2221','north alabama':'2372',
-  'samford':'2534','unc asheville':'241','chattanooga':'2111',
-  'lipscomb':'2352','belmont':'2057','dallas baptist':'2166',
-  'wofford':'2747','mercer':'2381'
+  'virginia tech':'259','miami':'2390','florida state':'52',
+  'georgia tech':'59','nc state':'152','notre dame':'87',
+  'stanford':'24','ucla':'26','usc':'30','arizona':'12',
+  'arizona state':'9','oregon':'2483','washington':'264',
+  'etsu':'2181','east tennessee':'2181','hofstra':'2221',
+  'north alabama':'2372','samford':'2534','unc asheville':'241',
+  'chattanooga':'2111','lipscomb':'2352','belmont':'2057',
+  'dallas baptist':'2166','wofford':'2747','mercer':'2381',
+  'nicholls':'2450','nicholls state':'2450',
+  'kent state':'2190','wright state':'2750',
+  'tennessee tech':'2572','eastern kentucky':'2198',
+  'bellarmine':'688'
 };
 
 function logo(opp) {
@@ -229,28 +161,27 @@ function logo(opp) {
   return null;
 }
 
-function sortDate(d) {
-  if (!d) return 0;
-  const mo = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
-  const p = d.toLowerCase().split(' ');
-  return p.length>=2 ? (mo[p[0].slice(0,3)]||0)*100 + (parseInt(p[1])||0) : 0;
-}
-
-function save(games) {
-  try { localStorage.setItem(CACHE, JSON.stringify({games, ts: Date.now()})); } catch(e){}
-}
-
-function load() {
-  try { const r = localStorage.getItem(CACHE); return r ? JSON.parse(r) : null; } catch(e){ return null; }
-}
-
 function fmtTs(ts) {
   const d = new Date(ts);
-  return 'Last updated ' + d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  return 'Updated ' + d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+
+function mergeResults(schedule, results) {
+  return schedule.map(function(g) {
+    const key = g.date + '_' + g.opponent.toLowerCase().replace(/\s/g,'');
+    return Object.assign({}, g, {result: results[key] || null});
+  });
+}
+
+function saveCache(results) {
+  try { localStorage.setItem(CACHE, JSON.stringify({results, ts: Date.now()})); } catch(e){}
+}
+
+function loadCache() {
+  try { const r = localStorage.getItem(CACHE); return r ? JSON.parse(r) : null; } catch(e){ return null; } 
 }
 
 function render(games) {
-  // Record
   const wins = games.filter(g => g.result && g.result[0]==='W').length;
   const losses = games.filter(g => g.result && g.result[0]==='L').length;
   if (wins+losses > 0) {
@@ -258,45 +189,46 @@ function render(games) {
     document.getElementById('l').textContent = losses;
     document.getElementById('r').textContent = wins+'-'+losses;
     document.getElementById('record').style.display = 'flex';
+  } else {
+    document.getElementById('record').style.display = 'none';
   }
 
-  // Next game
   const next = games.find(g => !g.result);
   if (next) {
+    const loc = next.location === 'home' ? 'Home' : next.location === 'away' ? 'Away' : 'Neutral';
     document.getElementById('next-opp').textContent = (next.location==='away'?'@ ':'')+next.opponent;
-    document.getElementById('next-meta').textContent = next.date + ' · ' + (next.time||'TBD') + ' · ' + (next.location==='home'?'Home':'Away');
+    document.getElementById('next-meta').textContent = next.date + ' · ' + (next.time||'TBD') + ' · ' + loc;
     document.getElementById('next').style.display = 'block';
+  } else {
+    document.getElementById('next').style.display = 'none';
   }
 
-  // Games list
   let html = '';
   games.forEach(function(g) {
-    const parts = (g.date||'').trim().split(' ');
+    const parts = (g.date||'').split(' ');
     const mon = parts[0]||'';
     const day = parts[1]||'';
-    const dow = g.day||'';
     const hasResult = g.result && (g.result[0]==='W'||g.result[0]==='L');
     const isWin = hasResult && g.result[0]==='W';
     const cls = hasResult ? (isWin?'win':'loss') : 'upcoming';
     const l = logo(g.opponent);
     const logoHtml = l
-      ? '<div class="logo-circle"><img src="'+l+'" onerror="this.parentNode.textContent=\''+((g.opponent||'?')[0])+'\'"></div>'
-      : '<div class="logo-circle">'+((g.opponent||'?')[0])+'</div>';
+      ? '<div class="logo-circle"><img src="'+l+'" onerror="this.parentNode.innerHTML=\''+((g.opponent||'?')[0])+'\'"></div>'
+      : '<div class="logo-circle">'+(g.opponent||'?')[0]+'</div>';
+    const loc = g.location==='home' ? 'Home' : g.location==='away' ? 'Away' : 'Neutral';
     const scoreHtml = hasResult
       ? '<div class="score '+(isWin?'win':'loss')+'">'+g.result+'</div>'
-      : '<div class="score tbd">'+(g.time&&g.time!=='null'?g.time:'TBD')+'</div>';
-    const away = g.location==='away';
+      : '<div class="score tbd">'+(g.time&&g.time!=='TBD'?g.time:'TBD')+'</div>';
 
     html += '<div class="game '+cls+'">'
-      + '<div class="date-col"><div class="mon">'+mon+'</div><div class="day">'+day+'</div><div class="dow">'+dow+'</div></div>'
-      + '<div class="sep"></div>'
-      + logoHtml
-      + '<div class="game-info"><div class="opp">'+(away?'@ ':'')+g.opponent+'</div><div class="meta">'+(away?'Away':'Home')+(hasResult?'':' · Upcoming')+'</div></div>'
-      + scoreHtml
-      + '</div>';
+      +'<div class="date-col"><div class="mon">'+mon+'</div><div class="day">'+day+'</div><div class="dow">'+(g.day||'')+'</div></div>'
+      +'<div class="sep"></div>'
+      +logoHtml
+      +'<div class="game-info"><div class="opp">'+(g.location==='away'?'@ ':'')+g.opponent+'</div><div class="meta">'+loc+(hasResult?'':' · Upcoming')+'</div></div>'
+      +scoreHtml
+      +'</div>';
   });
-
-  document.getElementById('list').innerHTML = html || '<div class="empty">No games found.</div>';
+  document.getElementById('list').innerHTML = html;
 }
 
 async function doRefresh() {
@@ -305,10 +237,8 @@ async function doRefresh() {
   const btn = document.getElementById('btn');
   btn.disabled = true;
   btn.textContent = 'Loading...';
-  document.getElementById('list').innerHTML = '<div class="spinner"><div class="spin"></div>Fetching schedule...</div>';
-  document.getElementById('record').style.display = 'none';
-  document.getElementById('next').style.display = 'none';
-  document.getElementById('ts').textContent = 'Loading...';
+  document.getElementById('ts').textContent = 'Fetching scores...';
+  document.getElementById('err-box').innerHTML = '';
 
   try {
     const res = await fetch(WORKER, {
@@ -316,31 +246,32 @@ async function doRefresh() {
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1200,
+        max_tokens: 1000,
         tools: [{type:'web_search_20250305',name:'web_search'}],
-        system: 'Search for the Tennessee Volunteers baseball schedule for the 2026 season (the season currently in progress as of March 2026). Include all games already played with final scores AND all upcoming games. Return ONLY a JSON array, no text before or after. Example: [{"date":"Feb 14","day":"Fri","opponent":"Hofstra","location":"home","time":"4:00 PM ET","result":"W 8-2"}]. Rules: date="Mon DD", location="home" or "away", result="W 7-3" or "L 4-2" for played games or null for upcoming, time=actual time or "TBD". Include every game. Sort oldest to newest.',
-        messages: [{role:'user',content:'Tennessee Vols baseball 2026 season schedule - games played with scores and upcoming games'}]
+        system: 'Search for Tennessee Volunteers baseball 2026 season results. Return ONLY a JSON object mapping game keys to scores. Key format: "Mon DD_opponentlowercase" e.g. "Feb 13_nichollsstate". Value format: "W 8-2" or "L 3-5". Only include completed games. Example: {"Feb 13_nichollsstate":"W 8-2","Feb 14_nichollsstate":"W 6-1"}. JSON object only, no other text.',
+        messages: [{role:'user',content:'Tennessee Vols baseball 2026 game results so far'}]
       })
     });
 
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
+    const raw = data.content.map(b=>b.type==='text'?b.text:'').join('');
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('Could not parse scores. Try again in 60 seconds.');
 
-    const raw = data.content.map(b => b.type==='text' ? b.text : '').join('');
-    const match = raw.match(/\[[\s\S]*\]/);
-    if (!match) throw new Error('No schedule data returned. Try again in 60 seconds.');
-
-    let games = JSON.parse(match[0]);
-    games = games.filter(g => g && g.opponent && g.date);
-    games.sort((a,b) => sortDate(a.date) - sortDate(b.date));
-
-    save(games);
+    const results = JSON.parse(match[0]);
+    saveCache(results);
+    const games = mergeResults(SCHEDULE, results);
     render(games);
     document.getElementById('ts').textContent = fmtTs(Date.now());
 
   } catch(e) {
-    document.getElementById('list').innerHTML = '<div class="err">'+e.message+'</div>';
-    document.getElementById('ts').textContent = 'Failed to load';
+    // Still show schedule even if scores fail
+    const cached = loadCache();
+    const games = mergeResults(SCHEDULE, cached ? cached.results : {});
+    render(games);
+    document.getElementById('err-box').innerHTML = '<div class="err">'+e.message+'</div>';
+    document.getElementById('ts').textContent = cached ? fmtTs(cached.ts)+' (cached)' : 'Score fetch failed';
   }
 
   busy = false;
@@ -348,12 +279,11 @@ async function doRefresh() {
   btn.textContent = 'Refresh';
 }
 
-// On load: show cache if available
-const cached = load();
-if (cached) {
-  render(cached.games);
-  document.getElementById('ts').textContent = fmtTs(cached.ts);
-}
+// On load: always show schedule, apply cached scores if available
+const cached = loadCache();
+const games = mergeResults(SCHEDULE, cached ? cached.results : {});
+render(games);
+document.getElementById('ts').textContent = cached ? fmtTs(cached.ts) : 'Tap Refresh to load scores';
 </script>
 </body>
 </html>
