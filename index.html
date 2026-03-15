@@ -318,8 +318,8 @@ async function doRefresh() {
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1200,
         tools: [{type:'web_search_20250305',name:'web_search'}],
-        system: 'Search for Tennessee Volunteers baseball 2025 schedule. Return ONLY a JSON array. No text before or after. Example: [{"date":"Feb 14","day":"Fri","opponent":"Hofstra","location":"home","time":"4:00 PM ET","result":"W 8-2"}]. Rules: date="Mon DD", location="home" or "away", result="W 7-3" or "L 4-2" for played games or null for upcoming, time=game time or "TBD". Include all games. Sort by date.',
-        messages: [{role:'user',content:'Tennessee Vols baseball 2025 schedule'}]
+        system: 'Search for the Tennessee Volunteers baseball schedule for the 2026 season (the season currently in progress as of March 2026). Include all games already played with final scores AND all upcoming games. Return ONLY a JSON array, no text before or after. Example: [{"date":"Feb 14","day":"Fri","opponent":"Hofstra","location":"home","time":"4:00 PM ET","result":"W 8-2"}]. Rules: date="Mon DD", location="home" or "away", result="W 7-3" or "L 4-2" for played games or null for upcoming, time=actual time or "TBD". Include every game. Sort oldest to newest.',
+        messages: [{role:'user',content:'Tennessee Vols baseball 2026 season schedule - games played with scores and upcoming games'}]
       })
     });
 
