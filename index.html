@@ -174,15 +174,18 @@
             model: 'claude-haiku-4-5-20251001',
             max_tokens: 1200,
             tools: [{type:'web_search_20250305',name:'web_search'}],
-            system: 'Search for the COMPLETE Tennessee Volunteers baseball 2025 season schedule. Return ONLY a valid JSON array with no markdown or text outside it. Format each game as: {"date":"Feb 14","day":"Fri","opponent":"Hofstra","location":"home","time":"4:00 PM ET","result":"W 8-2"}. RULES: date MUST be "Mon DD" like "Feb 14". location is "home" or "away". result is "W 7-3" or "L 4-2" for played games, null for upcoming. time is the game time or "TBD", never null. Include every game all season. Sort oldest to newest.',
-            messages: [{role:'user',content:'Complete Tennessee Vols baseball 2025 schedule - every game played with scores and all upcoming games'}]
+            system: 'You are a sports data assistant. Search the web for Tennessee Volunteers baseball 2025 schedule. After searching, you MUST respond with ONLY a JSON array and absolutely nothing else — no intro text, no markdown fences, no explanation. Start your response with [ and end with ]. Each element: {"date":"Feb 14","day":"Fri","opponent":"Hofstra","location":"home","time":"4:00 PM ET","result":"W 8-2"}. date format is "Mon DD". location is home or away. result is "W 7-3" or "L 4-2" for played games, or null for upcoming. time is actual time or TBD. Include all games. Sort oldest to newest. YOUR ENTIRE RESPONSE MUST BE ONLY THE JSON ARRAY STARTING WITH [',
+            messages: [{role:'user',content:'Search for Tennessee Vols baseball 2025 full schedule and return as JSON array only'}]
           })
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error.message);
         const text = data.content.map(b=>b.type==='text'?b.text:'').join('');
         const match = text.match(/\[[\s\S]*\]/);
-        if (!match) throw new Error('No data returned');
+        if (!match) {
+          console.log('Raw response:', text.substring(0, 500));
+          throw new Error('No data returned — try refreshing again');
+        }
         let games = JSON.parse(match[0]);
         games = games.filter(g=>g&&g.opponent&&g.date);
         games.sort((a,b)=>{ const da=parseDate(a.date),db=parseDate(b.date); return (!da||!db)?0:da-db; });
