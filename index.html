@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Vols Baseball">
   <meta name="theme-color" content="#FF8200">
-  <title>Vols Baseball 5</title>
+  <title>Vols Baseball</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #0d0d0d; font-family: Georgia, serif; color: #fff; min-height: 100vh; }
@@ -20,16 +20,16 @@
     .hero-title { font-size: 24px; font-weight: bold; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
     .hero-tag { font-size: 11px; opacity: 0.8; font-family: sans-serif; margin-top: 2px; }
     .container { padding: 16px; max-width: 520px; margin: 0 auto; }
-    .cache-notice { background: rgba(255,130,0,0.08); border: 1px solid rgba(255,130,0,0.2); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-family: sans-serif; font-size: 11px; color: #aaa; display: flex; justify-content: space-between; align-items: center; }
-    .cache-notice span { color: #FF8200; cursor: pointer; text-decoration: underline; }
-    .record-bar { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 0; }
+    .cache-notice { background: rgba(255,130,0,0.08); border: 1px solid rgba(255,130,0,0.2); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-family: sans-serif; font-size: 11px; color: #aaa; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .cache-notice a { color: #FF8200; cursor: pointer; text-decoration: underline; white-space: nowrap; }
+    .record-bar { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: flex; }
     .record-item { flex: 1; text-align: center; }
     .record-item + .record-item { border-left: 1px solid rgba(255,255,255,0.08); }
     .record-label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-family: sans-serif; }
     .record-val { font-size: 22px; font-weight: bold; margin-top: 2px; }
     .record-val.wins { color: #4ade80; }
     .record-val.losses { color: #f87171; }
-    .record-val.total { color: #FF8200; }
+    .record-val.pct { color: #FF8200; }
     .next-game { background: rgba(255,130,0,0.12); border: 1px solid rgba(255,130,0,0.4); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
     .next-label { font-size: 10px; letter-spacing: 3px; color: #FF8200; font-family: sans-serif; text-transform: uppercase; margin-bottom: 4px; }
     .next-opponent { font-size: 17px; font-weight: bold; }
@@ -44,13 +44,13 @@
     .game-card.upcoming { border-left-color: #FF8200; }
     .game-card.win { border-color: rgba(74,222,128,0.15); border-left-color: #4ade80; }
     .game-card.loss { border-color: rgba(248,113,113,0.15); border-left-color: #f87171; }
-    .date-block { text-align: center; min-width: 42px; flex-shrink: 0; }
-    .date-month { font-size: 10px; color: #FF8200; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+    .date-block { text-align: center; min-width: 46px; flex-shrink: 0; }
+    .date-month { font-size: 11px; color: #FF8200; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
     .date-num { font-size: 22px; font-weight: bold; color: #fff; line-height: 1.1; }
     .date-day { font-size: 10px; color: #888; font-family: sans-serif; text-transform: uppercase; letter-spacing: 1px; }
     .divider { width: 1px; height: 44px; background: rgba(255,255,255,0.08); flex-shrink: 0; }
-    .team-logo { width: 36px; height: 36px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 3px; flex-shrink: 0; }
-    .team-logo-fallback { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; color: #aaa; font-family: sans-serif; font-weight: bold; }
+    .team-logo { width: 34px; height: 34px; object-fit: contain; border-radius: 50%; background: rgba(255,255,255,0.08); padding: 3px; flex-shrink: 0; }
+    .team-logo-fallback { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; color: #aaa; font-family: sans-serif; font-weight: bold; }
     .game-info { flex: 1; min-width: 0; }
     .game-opponent { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .game-meta { font-size: 11px; color: #888; font-family: sans-serif; margin-top: 2px; }
@@ -63,6 +63,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { color: #FF8200; font-family: sans-serif; font-size: 13px; letter-spacing: 2px; }
     .error { text-align: center; padding: 40px 20px; color: #ff6b6b; font-family: sans-serif; font-size: 14px; line-height: 1.6; }
+    .first-load { text-align: center; padding: 40px 20px; font-family: sans-serif; color: #aaa; font-size: 14px; line-height: 1.8; }
     .footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; padding-bottom: 32px; }
     .last-updated { font-size: 11px; color: #555; font-family: sans-serif; }
     .refresh-btn { background: #FF8200; color: #000; border: none; border-radius: 8px; padding: 10px 20px; font-size: 12px; font-weight: bold; font-family: sans-serif; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; -webkit-tap-highlight-color: transparent; }
@@ -89,225 +90,182 @@
     </div>
     <div id="cache-notice" style="display:none;" class="cache-notice">
       <div id="cache-text"></div>
-      <span onclick="forceRefresh()">Force refresh</span>
+      <a onclick="forceRefresh()">Refresh now</a>
     </div>
     <div id="record-bar" style="display:none;" class="record-bar">
       <div class="record-item"><div class="record-label">Wins</div><div class="record-val wins" id="rec-wins">0</div></div>
       <div class="record-item"><div class="record-label">Losses</div><div class="record-val losses" id="rec-losses">0</div></div>
-      <div class="record-item"><div class="record-label">Record</div><div class="record-val total" id="rec-pct">—</div></div>
+      <div class="record-item"><div class="record-label">Record</div><div class="record-val pct" id="rec-pct">—</div></div>
     </div>
     <div id="next-game"></div>
-    <div id="games-list">
-      <div class="spinner-wrap">
-        <div class="spinner"></div>
-        <div class="loading-text">LOADING SCHEDULE...</div>
-      </div>
-    </div>
+    <div id="games-list"></div>
     <div class="footer">
       <div class="last-updated" id="last-updated"></div>
-      <button class="refresh-btn" id="refresh-btn" onclick="fetchSchedule(false)">🔄 Refresh</button>
+      <button class="refresh-btn" id="refresh-btn" onclick="forceRefresh()">🔄 Refresh</button>
     </div>
   </div>
 
   <script>
     const WORKER_URL = 'https://purple-frog-d0a1.jamesforbes615.workers.dev';
-    const CACHE_KEY = 'vols_schedule_cache';
-    const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours
+    const CACHE_KEY = 'vols_v7';
     let isFetching = false;
 
     function getLogoUrl(opponent) {
-      const clean = (opponent || '').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
-      const map = {
-        'alabama': '333', 'arkansas': '8', 'auburn': '2', 'florida': '57',
-        'georgia': '61', 'kentucky': '96', 'lsu': '99', 'mississippi state': '344',
-        'miss state': '344', 'missouri': '142', 'ole miss': '145', 'south carolina': '2579',
-        'texas am': '245', 'vanderbilt': '238', 'oklahoma': '201', 'oklahoma state': '197',
-        'duke': '150', 'north carolina': '153', 'clemson': '228', 'virginia': '258',
-        'miami': '2390', 'florida state': '52', 'georgia tech': '59', 'nc state': '152',
-        'wake forest': '154', 'virginia tech': '259', 'louisville': '97', 'notre dame': '87',
-        'stanford': '24', 'cal': '25', 'ucla': '26', 'usc': '30', 'arizona': '12',
-        'arizona state': '9', 'oregon': '2483', 'washington': '264', 'dallas baptist': '2166',
-        'east tennessee': '2181', 'etsu': '2181', 'hofstra': '2221',
-        'north alabama': '2372', 'samford': '2534', 'unc asheville': '2
-
-41',
-        'chattanooga': '2111', 'lipscomb': '2352', 'belmont': '2057',
+      const c = (opponent||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();
+      const m = {
+        'alabama':'333','arkansas':'8','auburn':'2','florida':'57','georgia':'61',
+        'kentucky':'96','lsu':'99','mississippi state':'344','miss state':'344',
+        'missouri':'142','ole miss':'145','south carolina':'2579','texas am':'245',
+        'texas a m':'245','vanderbilt':'238','oklahoma':'201','oklahoma state':'197',
+        'duke':'150','north carolina':'153','clemson':'228','virginia':'258',
+        'miami':'2390','florida state':'52','georgia tech':'59','nc state':'152',
+        'notre dame':'87','stanford':'24','ucla':'26','usc':'30','arizona':'12',
+        'arizona state':'9','oregon':'2483','washington':'264',
+        'east tennessee':'2181','etsu':'2181','hofstra':'2221',
+        'north alabama':'2372','samford':'2534','unc asheville':'241',
+        'chattanooga':'2111','lipscomb':'2352','belmont':'2057',
+        'dallas baptist':'2166','wofford':'2747','mercer':'2381',
       };
-      for (const key in map) {
-        if (clean.includes(key)) {
-          return 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/' + map[key] + '.png&w=80&h=80';
-        }
-      }
+      for (const k in m) { if (c.includes(k)) return 'https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/'+m[k]+'.png&w=80&h=80'; }
       return null;
     }
 
-    function parseDate(dateStr) {
-      if (!dateStr) return null;
+    function parseDate(d) {
+      if (!d) return null;
       const months = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
-      const parts = (dateStr || '').toLowerCase().trim().split(' ');
-      if (parts.length >= 2) {
-        const m = months[parts[0].substring(0,3)];
-        const d = parseInt(parts[1]);
-        if (m !== undefined && !isNaN(d)) return new Date(2025, m, d);
-      }
+      const p = d.toLowerCase().trim().split(' ');
+      if (p.length >= 2) { const mo=months[p[0].substring(0,3)], dy=parseInt(p[1]); if (mo!==undefined && !isNaN(dy)) return new Date(2025,mo,dy); }
       return null;
     }
 
-    function saveCache(games) {
-      try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ games, timestamp: Date.now() }));
-      } catch(e) {}
-    }
+    function saveCache(games) { try { localStorage.setItem(CACHE_KEY, JSON.stringify({games, ts: Date.now()})); } catch(e){} }
 
     function loadCache() {
       try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        if (!raw) return null;
-        const cached = JSON.parse(raw);
-        if (Date.now() - cached.timestamp < CACHE_DURATION) return cached;
-        return null;
+        const r = localStorage.getItem(CACHE_KEY);
+        if (!r) return null;
+        return JSON.parse(r); // No expiry — keep forever until user refreshes
       } catch(e) { return null; }
     }
 
-    function showCacheNotice(timestamp) {
-      const notice = document.getElementById('cache-notice');
-      const text = document.getElementById('cache-text');
-      const age = Math.round((Date.now() - timestamp) / 60000);
-      const ageStr = age < 60 ? age + ' min ago' : Math.round(age/60) + 'h ago';
-      text.textContent = 'Showing cached schedule (' + ageStr + ')';
-      notice.style.display = 'flex';
+    function showCacheNotice(ts) {
+      const age = Math.round((Date.now()-ts)/60000);
+      const s = age < 60 ? age+'m ago' : age < 1440 ? Math.round(age/60)+'h ago' : Math.round(age/1440)+'d ago';
+      document.getElementById('cache-text').textContent = 'Last updated ' + s;
+      document.getElementById('cache-notice').style.display = 'flex';
     }
 
-    function forceRefresh() {
-      try { localStorage.removeItem(CACHE_KEY); } catch(e) {}
-      document.getElementById('cache-notice').style.display = 'none';
-      fetchSchedule(true);
-    }
-
-    if (!window.navigator.standalone) {
-      document.getElementById('install-banner').style.display = 'block';
-    }
-
-    async function fetchSchedule(force) {
-      // Check cache first
-      if (!force) {
-        const cached = loadCache();
-        if (cached) {
-          renderGames(cached.games);
-          showCacheNotice(cached.timestamp);
-          document.getElementById('last-updated').textContent = 'Cached · tap "Force refresh" to update';
-          return;
-        }
-      }
-
+    async function forceRefresh() {
       if (isFetching) return;
       isFetching = true;
       const btn = document.getElementById('refresh-btn');
       btn.disabled = true;
+      btn.textContent = 'Loading...';
       document.getElementById('games-list').innerHTML = '<div class="spinner-wrap"><div class="spinner"></div><div class="loading-text">LOADING SCHEDULE...</div></div>';
       document.getElementById('next-game').innerHTML = '';
       document.getElementById('record-bar').style.display = 'none';
       document.getElementById('cache-notice').style.display = 'none';
 
       try {
-        const response = await fetch(WORKER_URL, {
+        const res = await fetch(WORKER_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {'Content-Type':'application/json'},
           body: JSON.stringify({
             model: 'claude-haiku-4-5-20251001',
-            max_tokens: 1000,
-            tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-            system: 'Search for the complete Tennessee Volunteers baseball 2025 season schedule. Return ONLY a JSON array with every game, no markdown, no explanation: [{"date":"Feb 14","day":"Fri","opponent":"Hofstra","location":"home","time":"4:00 PM ET","result":"W 8-2"}]. date format must be "Mon DD" e.g. "Feb 14" or "Mar 21". location must be "home" or "away". result must be "W 7-3" or "L 4-2" format if the game has been played, or null if upcoming. Include ALL games for the entire season. Sort chronologically by date. Return the JSON array only, nothing else.',
-            messages: [{ role: 'user', content: 'Give me the complete Tennessee Vols baseball 2025 season schedule, all games played and upcoming' }]
+            max_tokens: 1200,
+            tools: [{type:'web_search_20250305',name:'web_search'}],
+            system: 'Search for the COMPLETE Tennessee Volunteers baseball 2025 season schedule. Return ONLY a valid JSON array with no markdown or text outside it. Format each game as: {"date":"Feb 14","day":"Fri","opponent":"Hofstra","location":"home","time":"4:00 PM ET","result":"W 8-2"}. RULES: date MUST be "Mon DD" like "Feb 14". location is "home" or "away". result is "W 7-3" or "L 4-2" for played games, null for upcoming. time is the game time or "TBD", never null. Include every game all season. Sort oldest to newest.',
+            messages: [{role:'user',content:'Complete Tennessee Vols baseball 2025 schedule - every game played with scores and all upcoming games'}]
           })
         });
-
-        const data = await response.json();
+        const data = await res.json();
         if (data.error) throw new Error(data.error.message);
-        const text = data.content.map(b => b.type === 'text' ? b.text : '').join('');
-        const match = text.match(/\[[\s\S]*?\]/);
-        if (!match) throw new Error('No schedule data returned');
+        const text = data.content.map(b=>b.type==='text'?b.text:'').join('');
+        const match = text.match(/\[[\s\S]*\]/);
+        if (!match) throw new Error('No data returned');
         let games = JSON.parse(match[0]);
-
-        games.sort((a, b) => {
-          const da = parseDate(a.date), db = parseDate(b.date);
-          if (!da || !db) return 0;
-          return da - db;
-        });
-
+        games = games.filter(g=>g&&g.opponent&&g.date);
+        games.sort((a,b)=>{ const da=parseDate(a.date),db=parseDate(b.date); return (!da||!db)?0:da-db; });
         saveCache(games);
         renderGames(games);
+        showCacheNotice(Date.now());
         document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
       } catch(e) {
-        document.getElementById('games-list').innerHTML = '<div class="error">Could not load schedule.<br>Tap Refresh to try again.<br><small style="color:#888;font-size:11px;">' + e.message + '</small></div>';
+        document.getElementById('games-list').innerHTML = '<div class="error">Could not load schedule.<br><small style="color:#888;font-size:11px;">'+e.message+'</small></div>';
       }
       isFetching = false;
       btn.disabled = false;
+      btn.textContent = '🔄 Refresh';
     }
 
     function renderGames(games) {
-      const wins = games.filter(g => g.result && g.result.startsWith('W')).length;
-      const losses = games.filter(g => g.result && g.result.startsWith('L')).length;
-      if (wins + losses > 0) {
+      const wins = games.filter(g=>g.result&&g.result.startsWith('W')).length;
+      const losses = games.filter(g=>g.result&&g.result.startsWith('L')).length;
+      if (wins+losses > 0) {
         document.getElementById('rec-wins').textContent = wins;
         document.getElementById('rec-losses').textContent = losses;
-        document.getElementById('rec-pct').textContent = wins + '-' + losses;
+        document.getElementById('rec-pct').textContent = wins+'-'+losses;
         document.getElementById('record-bar').style.display = 'flex';
       }
 
-      const nextGame = games.find(g => !g.result);
-      const nextEl = document.getElementById('next-game');
-      if (nextGame) {
-        const isHome = nextGame.location === 'home';
-        const logoUrl = getLogoUrl(nextGame.opponent);
-        const logoHtml = logoUrl
-          ? '<img src="' + logoUrl + '" class="next-logo" onerror="this.style.display=\'none\'">'
-          : '<div class="next-logo-fallback">' + (nextGame.opponent || '?').charAt(0) + '</div>';
-        nextEl.innerHTML = '<div class="next-game">' + logoHtml + '<div style="flex:1"><div class="next-label">Next Game</div><div class="next-opponent">vs ' + nextGame.opponent + '</div><div class="next-time">' + nextGame.date + ' · ' + nextGame.time + '</div></div><div class="location-badge ' + (isHome ? 'home-badge' : 'away-badge') + '">' + (isHome ? 'Home' : 'Away') + '</div></div>';
+      const next = games.find(g=>!g.result);
+      if (next) {
+        const isHome = next.location==='home';
+        const logo = getLogoUrl(next.opponent);
+        const logoHtml = logo ? '<img src="'+logo+'" class="next-logo" onerror="this.style.display=\'none\'">' : '<div class="next-logo-fallback">'+(next.opponent||'?').charAt(0)+'</div>';
+        document.getElementById('next-game').innerHTML = '<div class="next-game">'+logoHtml+'<div style="flex:1"><div class="next-label">Next Game</div><div class="next-opponent">vs '+next.opponent+'</div><div class="next-time">'+next.date+' · '+(next.time||'TBD')+'</div></div><div class="location-badge '+(isHome?'home-badge':'away-badge')+'">'+(isHome?'Home':'Away')+'</div></div>';
       }
 
-      let currentMonth = '';
-      let html = '';
+      let currentMonth = '', html = '';
       games.forEach(function(game) {
-        const parts = (game.date || '').trim().split(' ');
-        const month = parts[0] || '';
-        const day = parts[1] || game.date || '';
+        const parts = (game.date||'').trim().split(' ');
+        const month = parts[0]||'';
+        const day = parts[1]||'';
         const hasResult = game.result !== null && game.result !== undefined;
         const isWin = hasResult && game.result.startsWith('W');
-        const cardClass = hasResult ? (isWin ? 'win' : 'loss') : 'upcoming';
+        const cardClass = hasResult ? (isWin?'win':'loss') : 'upcoming';
 
         if (month && month !== currentMonth) {
           currentMonth = month;
-          html += '<div class="month-header">— ' + month + ' 2025 —</div>';
+          html += '<div class="month-header">— '+month+' 2025 —</div>';
         }
 
-        const logoUrl = getLogoUrl(game.opponent);
-        const logoHtml = logoUrl
-          ? '<img src="' + logoUrl + '" class="team-logo" onerror="this.style.display=\'none\'">'
-          : '<div class="team-logo-fallback">' + (game.opponent || '?').charAt(0) + '</div>';
+        const logo = getLogoUrl(game.opponent);
+        const logoHtml = logo
+          ? '<img src="'+logo+'" class="team-logo" onerror="this.style.display=\'none\'">'
+          : '<div class="team-logo-fallback">'+(game.opponent||'?').charAt(0)+'</div>';
+        const timeStr = (!game.time||game.time==='null'||game.time==='TBA') ? 'TBD' : game.time;
 
-        html += '<div class="game-card ' + cardClass + '">' +
+        html += '<div class="game-card '+cardClass+'">' +
           '<div class="date-block">' +
-            '<div class="date-month">' + month + '</div>' +
-            '<div class="date-num">' + day + '</div>' +
-            '<div class="date-day">' + (game.day || '') + '</div>' +
+            '<div class="date-month">'+month+'</div>' +
+            '<div class="date-num">'+day+'</div>' +
+            '<div class="date-day">'+(game.day||'')+'</div>' +
           '</div>' +
           '<div class="divider"></div>' +
           logoHtml +
           '<div class="game-info">' +
-            '<div class="game-opponent">' + (game.location !== 'home' ? '@ ' : '') + (game.opponent || '') + '</div>' +
-            '<div class="game-meta">' + (game.location === 'home' ? 'Home' : 'Away') + ' · ' + (game.time || 'TBD') + '</div>' +
+            '<div class="game-opponent">'+(game.location!=='home'?'@ ':'')+game.opponent+'</div>' +
+            '<div class="game-meta">'+(game.location==='home'?'Home':'Away')+' · '+timeStr+'</div>' +
           '</div>' +
-          (hasResult
-            ? '<div class="result ' + (isWin ? 'win' : 'loss') + '">' + game.result + '</div>'
-            : '<div class="upcoming-tag">Upcoming</div>') +
+          (hasResult ? '<div class="result '+(isWin?'win':'loss')+'">'+game.result+'</div>' : '<div class="upcoming-tag">Upcoming</div>') +
           '</div>';
       });
 
-      document.getElementById('games-list').innerHTML = html || '<div class="error">No games found.</div>';
+      document.getElementById('games-list').innerHTML = html||'<div class="error">No games found.</div>';
     }
 
-    fetchSchedule(false);
+    // On load — always show cached data, never auto-fetch
+    const cached = loadCache();
+    if (cached) {
+      renderGames(cached.games);
+      showCacheNotice(cached.ts);
+      document.getElementById('last-updated').textContent = 'Tap Refresh to update';
+    } else {
+      document.getElementById('games-list').innerHTML = '<div class="first-load">No schedule saved yet.<br>Tap <strong style="color:#FF8200;">🔄 Refresh</strong> to load the schedule.</div>';
+    }
+
+    if (!window.navigator.standalone) { document.getElementById('install-banner').style.display = 'block'; }
   </script>
 </body>
 </html>
