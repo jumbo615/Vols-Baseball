@@ -16,7 +16,7 @@
     header p { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 2px; }
     .bar { background: #1a1a1a; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
     .timestamp { font-size: 11px; color: #666; }
-    .refresh-btn { background: #FF8200; color: #000; border: none; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .refresh-btn { background: #FF8200; color: #000; border: none; border-radius: 6px; padding: 7px 16px; font-size: 12px; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .refresh-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
     .content { padding: 16px 20px 40px; max-width: 540px; margin: 0 auto; }
     .record { display: flex; gap: 12px; margin-bottom: 20px; }
@@ -48,10 +48,12 @@
     .score.win { color: #4ade80; background: rgba(74,222,128,0.1); }
     .score.loss { color: #f87171; background: rgba(248,113,113,0.1); }
     .score.tbd { color: #444; font-size: 11px; font-weight: 400; }
-    .err { color: #f87171; font-size: 12px; text-align: center; padding: 12px; background: #1a1a1a; border-radius: 8px; margin-bottom: 12px; }
-    .spin-wrap { text-align: center; padding: 30px; color: #666; font-size: 12px; }
-    .spin { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #222; border-top-color: #FF8200; animation: s 0.7s linear infinite; margin: 0 auto 8px; }
-    @keyframes s { to { transform: rotate(360deg); } }
+    .spinner { text-align: center; padding: 60px 20px; color: #666; font-size: 13px; }
+    .spin { width: 36px; height: 36px; border-radius: 50%; border: 2px solid #222; border-top-color: #FF8200; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty { text-align: center; padding: 60px 20px; color: #555; font-size: 14px; line-height: 1.8; }
+    .empty strong { color: #FF8200; }
+    .err { color: #f87171; font-size: 12px; text-align: center; padding: 16px; background: #1a1a1a; border-radius: 8px; margin-bottom: 12px; line-height: 1.6; }
   </style>
 </head>
 <body>
@@ -60,11 +62,11 @@
   <p>2026 Season Schedule</p>
 </header>
 <div class="bar">
-  <div class="timestamp" id="ts">Tap Refresh to update scores</div>
+  <div class="timestamp" id="ts">Tap Refresh to load schedule</div>
   <button class="refresh-btn" id="btn" onclick="doRefresh()">Refresh</button>
 </div>
 <div class="content">
-  <div class="record">
+  <div id="record" style="display:none" class="record">
     <div class="record-box wins"><div class="val" id="w">0</div><div class="lbl">Wins</div></div>
     <div class="record-box losses"><div class="val" id="l">0</div><div class="lbl">Losses</div></div>
     <div class="record-box rec"><div class="val" id="r">—</div><div class="lbl">Record</div></div>
@@ -75,74 +77,15 @@
     <div class="next-meta" id="next-meta"></div>
   </div>
   <div id="err"></div>
-  <div id="list"></div>
+  <div id="list">
+    <div class="empty">No schedule loaded yet.<br>Tap <strong>Refresh</strong> to load from utsports.com.</div>
+  </div>
 </div>
 
 <script>
 const WORKER = 'https://purple-frog-d0a1.jamesforbes615.workers.dev';
-const CACHE  = 'vols_2026_scores_v3';
+const CACHE  = 'vols_2026_v4';
 let busy = false;
-
-// Complete 2026 schedule with all known scores hardcoded
-// result: null = upcoming, "W X-Y" or "L X-Y" = final
-const SCHEDULE = [
-  {date:'Feb 13',day:'Fri',opponent:'Nicholls',location:'home',time:'4:30 PM ET',result:'W 10-0'},
-  {date:'Feb 14',day:'Sat',opponent:'Nicholls',location:'home',time:'4:00 PM ET',result:'W 5-1'},
-  {date:'Feb 14',day:'Sat',opponent:'Nicholls',location:'home',time:'DH',result:'W 12-2'},
-  {date:'Feb 17',day:'Tue',opponent:'UNC Asheville',location:'home',time:'4:00 PM ET',result:'W 10-3'},
-  {date:'Feb 20',day:'Fri',opponent:'Kent State',location:'home',time:'4:30 PM ET',result:'W 4-3'},
-  {date:'Feb 21',day:'Sat',opponent:'Kent State',location:'home',time:'4:00 PM ET',result:'L 1-2'},
-  {date:'Feb 22',day:'Sun',opponent:'Kent State',location:'home',time:'1:00 PM ET',result:'L 5-9'},
-  {date:'Feb 24',day:'Tue',opponent:'Bellarmine',location:'home',time:'4:00 PM ET',result:'W 8-3'},
-  {date:'Feb 27',day:'Fri',opponent:'UCLA',location:'neutral',time:'4:00 PM ET',result:'L 5-12'},
-  {date:'Feb 28',day:'Sat',opponent:'Arizona State',location:'neutral',time:'12:00 PM ET',result:'W 5-3'},
-  {date:'Mar 1',day:'Sun',opponent:'Virginia Tech',location:'neutral',time:'11:30 AM ET',result:'W 3-1'},
-  {date:'Mar 3',day:'Tue',opponent:'ETSU',location:'home',time:'4:00 PM ET',result:'W 9-2'},
-  {date:'Mar 4',day:'Wed',opponent:'Oakland',location:'home',time:'4:00 PM ET',result:'W 6-1'},
-  {date:'Mar 6',day:'Fri',opponent:'Wright State',location:'home',time:'6:30 PM ET',result:'W 6-4'},
-  {date:'Mar 7',day:'Sat',opponent:'Wright State',location:'home',time:'6:00 PM ET',result:'W 7-3'},
-  {date:'Mar 8',day:'Sun',opponent:'Wright State',location:'home',time:'1:00 PM ET',result:'W 6-0'},
-  {date:'Mar 10',day:'Tue',opponent:'Tennessee Tech',location:'home',time:'6:00 PM ET',result:'W 20-2'},
-  {date:'Mar 13',day:'Fri',opponent:'Georgia',location:'away',time:'6:00 PM ET',result:'W 7-4'},
-  {date:'Mar 14',day:'Sat',opponent:'Georgia',location:'away',time:'5:00 PM ET',result:null},
-  {date:'Mar 15',day:'Sun',opponent:'Georgia',location:'away',time:'1:00 PM ET',result:null},
-  {date:'Mar 17',day:'Tue',opponent:'Eastern Kentucky',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Mar 20',day:'Fri',opponent:'Missouri',location:'home',time:'6:30 PM ET',result:null},
-  {date:'Mar 21',day:'Sat',opponent:'Missouri',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Mar 22',day:'Sun',opponent:'Missouri',location:'home',time:'1:00 PM ET',result:null},
-  {date:'Mar 24',day:'Tue',opponent:'USC Upstate',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Mar 27',day:'Fri',opponent:'Vanderbilt',location:'away',time:'TBD',result:null},
-  {date:'Mar 28',day:'Sat',opponent:'Vanderbilt',location:'away',time:'TBD',result:null},
-  {date:'Mar 29',day:'Sun',opponent:'Vanderbilt',location:'away',time:'TBD',result:null},
-  {date:'Mar 31',day:'Tue',opponent:'Austin Peay',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Apr 3',day:'Fri',opponent:'LSU',location:'home',time:'6:30 PM ET',result:null},
-  {date:'Apr 4',day:'Sat',opponent:'LSU',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Apr 5',day:'Sun',opponent:'LSU',location:'home',time:'1:00 PM ET',result:null},
-  {date:'Apr 7',day:'Tue',opponent:'Northern Kentucky',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Apr 10',day:'Fri',opponent:'Mississippi State',location:'away',time:'TBD',result:null},
-  {date:'Apr 11',day:'Sat',opponent:'Mississippi State',location:'away',time:'TBD',result:null},
-  {date:'Apr 12',day:'Sun',opponent:'Mississippi State',location:'away',time:'TBD',result:null},
-  {date:'Apr 14',day:'Tue',opponent:'UNC Asheville',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Apr 17',day:'Fri',opponent:'Ole Miss',location:'home',time:'6:30 PM ET',result:null},
-  {date:'Apr 18',day:'Sat',opponent:'Ole Miss',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Apr 19',day:'Sun',opponent:'Ole Miss',location:'home',time:'1:00 PM ET',result:null},
-  {date:'Apr 21',day:'Tue',opponent:'Lipscomb',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Apr 24',day:'Fri',opponent:'Alabama',location:'home',time:'6:30 PM ET',result:null},
-  {date:'Apr 25',day:'Sat',opponent:'Alabama',location:'home',time:'6:00 PM ET',result:null},
-  {date:'Apr 26',day:'Sun',opponent:'Alabama',location:'home',time:'1:00 PM ET',result:null},
-  {date:'Apr 28',day:'Tue',opponent:'West Georgia',location:'home',time:'6:00 PM ET',result:null},
-  {date:'May 1',day:'Fri',opponent:'Kentucky',location:'away',time:'TBD',result:null},
-  {date:'May 2',day:'Sat',opponent:'Kentucky',location:'away',time:'TBD',result:null},
-  {date:'May 3',day:'Sun',opponent:'Kentucky',location:'away',time:'TBD',result:null},
-  {date:'May 5',day:'Tue',opponent:'Presbyterian',location:'home',time:'6:00 PM ET',result:null},
-  {date:'May 8',day:'Fri',opponent:'Texas',location:'home',time:'6:30 PM ET',result:null},
-  {date:'May 9',day:'Sat',opponent:'Texas',location:'home',time:'6:00 PM ET',result:null},
-  {date:'May 10',day:'Sun',opponent:'Texas',location:'home',time:'1:00 PM ET',result:null},
-  {date:'May 12',day:'Tue',opponent:'Belmont',location:'home',time:'6:00 PM ET',result:null},
-  {date:'May 14',day:'Thu',opponent:'Oklahoma',location:'away',time:'TBD',result:null},
-  {date:'May 15',day:'Fri',opponent:'Oklahoma',location:'away',time:'TBD',result:null},
-  {date:'May 16',day:'Sat',opponent:'Oklahoma',location:'away',time:'TBD',result:null},
-];
 
 const LOGOS = {
   'alabama':'333','arkansas':'8','auburn':'2','florida':'57','georgia':'61',
@@ -153,13 +96,12 @@ const LOGOS = {
   'miami':'2390','florida state':'52','georgia tech':'59','nc state':'152',
   'notre dame':'87','stanford':'24','ucla':'26','usc':'30','arizona':'12',
   'arizona state':'9','oregon':'2483','washington':'264',
-  'etsu':'2181','east tennessee':'2181','hofstra':'2221',
-  'north alabama':'2372','samford':'2534','unc asheville':'241',
+  'etsu':'2181','east tennessee':'2181','unc asheville':'241',
   'chattanooga':'2111','lipscomb':'2352','belmont':'2057',
-  'dallas baptist':'2166','wofford':'2747','mercer':'2381',
   'nicholls':'2450','kent state':'2190','wright state':'2750',
   'tennessee tech':'2572','eastern kentucky':'2198','bellarmine':'688',
-  'oakland':'2473','northern kentucky':'2448',
+  'oakland':'2473','northern kentucky':'2448','presbyterian':'2498',
+  'austin peay':'2010','wofford':'2747','mercer':'2381',
 };
 
 function logo(opp) {
@@ -173,35 +115,35 @@ function fmtTs(ts) {
   return 'Updated ' + d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
 }
 
-function saveCache(overrides) {
-  try { localStorage.setItem(CACHE, JSON.stringify({overrides, ts: Date.now()})); } catch(e){}
+function saveCache(games) {
+  try { localStorage.setItem(CACHE, JSON.stringify({games, ts: Date.now()})); } catch(e){}
 }
 
 function loadCache() {
   try { const r = localStorage.getItem(CACHE); return r ? JSON.parse(r) : null; } catch(e){ return null; }
 }
 
-function applyOverrides(schedule, overrides) {
-  if (!overrides) return schedule;
-  return schedule.map(function(g, i) {
-    const key = i + '_' + g.date.replace(' ','').toLowerCase() + '_' + g.opponent.toLowerCase().replace(/\s/g,'');
-    return overrides[key] ? Object.assign({}, g, {result: overrides[key]}) : g;
-  });
-}
-
 function render(games) {
   const wins = games.filter(g => g.result && g.result[0]==='W').length;
   const losses = games.filter(g => g.result && g.result[0]==='L').length;
-  document.getElementById('w').textContent = wins;
-  document.getElementById('l').textContent = losses;
-  document.getElementById('r').textContent = wins+'-'+losses;
+
+  if (wins + losses > 0) {
+    document.getElementById('w').textContent = wins;
+    document.getElementById('l').textContent = losses;
+    document.getElementById('r').textContent = wins+'-'+losses;
+    document.getElementById('record').style.display = 'flex';
+  } else {
+    document.getElementById('record').style.display = 'none';
+  }
 
   const next = games.find(g => !g.result);
   if (next) {
     const loc = next.location==='home' ? 'Home' : next.location==='away' ? 'Away' : 'Neutral Site';
     document.getElementById('next-opp').textContent = (next.location==='away'?'@ ':'')+next.opponent;
-    document.getElementById('next-meta').textContent = next.date + ' · ' + next.time + ' · ' + loc;
+    document.getElementById('next-meta').textContent = next.date+' · '+(next.time||'TBD')+' · '+loc;
     document.getElementById('next').style.display = 'block';
+  } else {
+    document.getElementById('next').style.display = 'none';
   }
 
   let html = '';
@@ -218,7 +160,7 @@ function render(games) {
     const loc = g.location==='home' ? 'Home' : g.location==='away' ? 'Away' : 'Neutral';
     const scoreHtml = hasResult
       ? '<div class="score '+(isWin?'win':'loss')+'">'+g.result+'</div>'
-      : '<div class="score tbd">'+(g.time==='TBD'?'TBD':g.time)+'</div>';
+      : '<div class="score tbd">'+(g.time||'TBD')+'</div>';
 
     html += '<div class="game '+cls+'">'
       +'<div class="date-col"><div class="mon">'+mon+'</div><div class="num">'+num+'</div><div class="dow">'+(g.day||'')+'</div></div>'
@@ -228,7 +170,8 @@ function render(games) {
       +scoreHtml
       +'</div>';
   });
-  document.getElementById('list').innerHTML = html;
+
+  document.getElementById('list').innerHTML = html || '<div class="empty">No games found.</div>';
 }
 
 async function doRefresh() {
@@ -238,38 +181,36 @@ async function doRefresh() {
   btn.disabled = true;
   btn.textContent = 'Loading...';
   document.getElementById('err').innerHTML = '';
-  document.getElementById('ts').textContent = 'Fetching latest scores...';
+  document.getElementById('ts').textContent = 'Fetching from utsports.com...';
+  document.getElementById('list').innerHTML = '<div class="spinner"><div class="spin"></div>Loading schedule...</div>';
+  document.getElementById('record').style.display = 'none';
+  document.getElementById('next').style.display = 'none';
 
   try {
     const res = await fetch(WORKER, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({type: 'schedule'})
+      body: JSON.stringify({type:'schedule'})
     });
-    const html = await res.text();
+    const data = await res.json();
 
-    // Parse scores from utsports.com schedule page
-    const overrides = {};
-    SCHEDULE.forEach(function(g, i) {
-      const key = i+'_'+g.date.replace(' ','').toLowerCase()+'_'+g.opponent.toLowerCase().replace(/\s/g,'');
-      // Look for win/loss patterns near the opponent name in the HTML
-      const oppEscaped = g.opponent.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-      const pattern = new RegExp(oppEscaped+'[\\s\\S]{0,300}?(W|L)\\s*(\\d+)-(\\d+)','i');
-      const match = html.match(pattern);
-      if (match) {
-        overrides[key] = match[1].toUpperCase()+' '+match[2]+'-'+match[3];
-      }
-    });
-    saveCache(overrides);
-    const games = applyOverrides(SCHEDULE, overrides);
-    render(games);
+    if (data.error) throw new Error(data.error);
+    if (!data.games || data.games.length === 0) throw new Error('No games found. The page structure may have changed.');
+
+    saveCache(data.games);
+    render(data.games);
     document.getElementById('ts').textContent = fmtTs(Date.now());
+
   } catch(e) {
     const cached = loadCache();
-    const games = applyOverrides(SCHEDULE, cached ? cached.overrides : null);
-    render(games);
-    document.getElementById('err').innerHTML = '<div class="err">'+e.message+'</div>';
-    document.getElementById('ts').textContent = cached ? fmtTs(cached.ts)+' (cached)' : 'Using hardcoded scores';
+    if (cached) {
+      render(cached.games);
+      document.getElementById('err').innerHTML = '<div class="err">Could not refresh: '+e.message+'<br>Showing last cached schedule.</div>';
+      document.getElementById('ts').textContent = fmtTs(cached.ts)+' (cached)';
+    } else {
+      document.getElementById('list').innerHTML = '<div class="empty">Could not load schedule.<br>'+e.message+'</div>';
+      document.getElementById('ts').textContent = 'Failed to load';
+    }
   }
 
   busy = false;
@@ -277,11 +218,12 @@ async function doRefresh() {
   btn.textContent = 'Refresh';
 }
 
-// On load: show schedule with hardcoded scores + any cached overrides
+// On load: show cached schedule if available
 const cached = loadCache();
-const games = applyOverrides(SCHEDULE, cached ? cached.overrides : null);
-render(games);
-document.getElementById('ts').textContent = cached ? fmtTs(cached.ts) : 'Scores current as of Mar 13 · Tap Refresh to update';
+if (cached) {
+  render(cached.games);
+  document.getElementById('ts').textContent = fmtTs(cached.ts);
+}
 </script>
 </body>
 </html>
