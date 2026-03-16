@@ -190,10 +190,9 @@ async function doRefresh() {
     const res = await fetch(WORKER, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({type:'schedule'})
+      body: JSON.stringify({})
     });
     const data = await res.json();
-    console.log("RAW:", JSON.stringify(data).substring(0, 3000));
 
     if (data.error) throw new Error(data.error);
     if (!data.games || data.games.length === 0) throw new Error('No games found. The page structure may have changed.');
