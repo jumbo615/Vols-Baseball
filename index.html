@@ -194,6 +194,7 @@ async function doRefresh() {
     });
     const data = await res.json();
 
+    console.log("DEBUG:", JSON.stringify(data).substring(0, 1000));
     if (data.error) throw new Error(data.error);
     if (!data.games || data.games.length === 0) throw new Error('No games found. The page structure may have changed.');
 
